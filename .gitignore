@@ -1,0 +1,9 @@
+# vscode config
+.vscode
+
+# docs config
+docs/html
+
+# cpp build config
+build/*
+bin/*
