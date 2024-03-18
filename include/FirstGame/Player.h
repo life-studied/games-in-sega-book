@@ -11,6 +11,10 @@
 
 #pragma once
 
+#include "Map.h"
+
+#include <tuple>
+
 namespace FirstGame
 {
     /// @brief      Enum MoveDirections define the directions player can move.
@@ -37,14 +41,52 @@ namespace FirstGame
 
         /// @brief      construct a player by x and y
         /// @param pos tuple with x and y
-        Player(std::tuple<int, int> pos);
+        Player(std::tuple<int, int>&& pos);
 
         /// @brief default destruct
         ~Player();
+
+        /// @brief delete copy construct
+        /// @param  
+        Player(const Player&) = delete;
+
+        /// @brief call player to move up
+        /// @warning must set map first!
+        void MoveUp();
+
+        /// @brief call player to move down
+        /// @warning must set map first!
+        void MoveDown();
+
+        /// @brief call player to move left
+        /// @warning must set map first!
+        void MoveLeft();
+
+        /// @brief call player to move right
+        /// @warning must set map first!
+        void MoveRight();
+
+        /// @brief      set player pos for restart game
+        /// @param x 
+        /// @param y 
+        void SetPos(int x, int y);
+
+        void SetPos(std::tuple<int, int>&& pos);
+
+        /// @brief      get map for this game
+        /// @param map  game map
+        void SetMap(Map& map);
+
+    private:
+        /// @brief  check map is set
+        /// @return true if map is not nullptr, otherwise false
+        /// @see    SetMap(Map& map)
+        bool CheckMapIsValid();
     private:
 
-        int x_;         ///< pos x
-        int y_;         ///< pos y
+        int x_;                 ///< pos x
+        int y_;                 ///< pos y
+        Map* map_ = nullptr;    ///< map
     }; // class Player
 
 } // namespace FirstGame

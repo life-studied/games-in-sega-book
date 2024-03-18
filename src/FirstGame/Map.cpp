@@ -11,25 +11,7 @@ FirstGame::Map::Map()
 
 FirstGame::Map::Map(std::string filename)
 {
-    try
-    {
-        if(!GetMapDataFromFile(filename))
-        {
-            throw std::runtime_error("Error: Map file not found.");
-        }
-        else
-        {
-            GetPlayerPositionFromMap();
-            if(!CheckMapValid())
-            {
-                throw std::runtime_error("Error: Map data is invalid.");
-            }
-        }
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
+    InitByFilename(filename);
 }
 
 FirstGame::Map::Map(std::vector<std::string>& map_data)
@@ -43,6 +25,7 @@ FirstGame::Map::Map(std::vector<std::string>& map_data)
         else
         {
             GetPlayerPositionFromMap();
+            GetTargetPositionsFromMap();
             if(!CheckMapValid())
             {
                 throw std::runtime_error("Error: Map data is invalid.");
@@ -69,14 +52,59 @@ std::tuple<int, int> FirstGame::Map::GetPlayerPosition()
     return std::tuple<int, int>(player_x_, player_y_);
 }
 
+void FirstGame::Map::NextMap()
+{
+    if(map_file_path_.empty())
+        throw std::runtime_error("Error: Map file path is empty.");
+
+    try
+    {
+        InitByFilename(map_file_path_);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        throw e;
+    }
+}
+
+void FirstGame::Map::InitByFilename(std::string& filename)
+{
+    try
+    {
+        if(!GetMapDataFromFile(filename))
+        {
+            throw std::runtime_error("Error: Map file not found.");
+        }
+        else
+        {
+            GetPlayerPositionFromMap();
+            GetTargetPositionsFromMap();
+            if(!CheckMapValid())
+            {
+                throw std::runtime_error("Error: Map data is invalid.");
+            }
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        if(e.what() == "Error: Map file not found.")
+            throw std::runtime_error("Sorry, no next game~");
+    }
+}
+
 bool FirstGame::Map::GetMapDataFromFile(std::string filename)
 {
-    std::ifstream ifs(filename);
+    if(map_file_path_.empty())
+        map_file_path_ = filename;
+    
+    std::ifstream ifs(filename + std::to_string(map_index_++));
     if(!ifs.is_open())
     {
         throw std::runtime_error("Error: Map file not found.");
     }
-
+    map_data_.clear();
     std::string line;
     while(std::getline(ifs, line))
     {
@@ -90,6 +118,7 @@ bool FirstGame::Map::GetMapDataFromFile(std::string filename)
 
 bool FirstGame::Map::GetMapDataFromVector(std::vector<std::string>& map_data)
 {
+    map_data_.clear();
     for(auto& i : map_data)
     {
         map_data_.push_back(i);
@@ -165,20 +194,87 @@ void FirstGame::Map::ClearMapData()
 
 void FirstGame::Map::GetPlayerPositionFromMap()
 {
-    for(int i = 0; i < map_data_.size(); i++)
+    for(int i = 0; i < map_height_; i++)
     {
-        for(int j = 0; j < map_data_[i].size(); j++)
+        for(int j = 0; j < map_width_; j++)
         {
             if(map_data_[i][j] == 'p')
             {
-                player_x_ = j;
-                player_y_ = i;
+                player_x_ = i;
+                player_y_ = j;
                 return;
             }
         }
     }
 
     throw std::runtime_error("Player position not found in map");
+}
+
+void FirstGame::Map::GetTargetPositionsFromMap()
+{
+    targets_.clear();
+    for(int i = 0; i < map_height_; i++)
+    {
+        for(int j = 0; j < map_width_; j++)
+        {
+            if(map_data_[i][j] == '.')
+            {
+                targets_.push_back(std::make_tuple(i,j));
+            }
+        }
+    }
+}
+
+bool FirstGame::Map::Win()
+{
+    for(auto & i : targets_)
+    {
+        if(map_data_[std::get<0>(i)][std::get<1>(i)] != 'o')
+            return false;
+    }
+    return true;
+}
+
+bool FirstGame::Map::Move(int x, int y)
+{
+    if(CanMove(x, y))
+    {
+        if(map_data_[x][y] == 'o')
+        {
+            map_data_[x + (x - player_x_)][y + (y - player_y_)] = map_data_[x][y];
+        }
+        map_data_[x][y] = 'p';
+        map_data_[player_x_][player_y_] = ' ';
+        player_x_ = x;
+        player_y_ = y;
+    }
+    else
+        return false;
+    return true;
+}
+
+bool FirstGame::Map::CanMove(int x, int y)
+{
+    if(x <= 0 || x >= map_height_ - 1 || y <= 0 || y >= map_width_ - 1)
+        return false;
+    
+    if(map_data_[x][y] == '#')
+        return false;
+
+    if(abs(x - player_x_) + abs(y - player_y_) != 1)
+        return false;
+
+    if(map_data_[x][y] == 'o')
+    {
+        if(map_data_[x + (x - player_x_)][y + (y - player_y_)] == ' ' || map_data_[x + (x - player_x_)][y + (y - player_y_)] == '.')
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+
+    return true;
 }
 
 std::ostream &FirstGame::operator<<(std::ostream &os, Map &m)

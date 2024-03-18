@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(Games
         VERSION 2024.3
-        PROJECT_DESCRIPTION "Games from book"
+        DESCRIPTION "Games from sega book"
         LANGUAGES C CXX)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
@@ -18,12 +18,7 @@ else()
     set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
-set(PROJECT_BINARY_DIR ${PROJECT_SOURCE_DIR}/bin)
-
-execute_process(COMMAND cp -r ./configs ${PROJECT_BINARY_DIR}/configs
-                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                TIMEOUT 3
-                RESULT_VARIABLE result_var)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 add_subdirectory(src/FirstGame)
 

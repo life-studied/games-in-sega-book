@@ -25,7 +25,7 @@ namespace FirstGame
         /// @brief      control the game update
         virtual void Update() = 0;
     public:
-        Game();
-        ~Game();
+        Game() = default;
+        ~Game() = default;
     };
 } // namespace FirstGame
