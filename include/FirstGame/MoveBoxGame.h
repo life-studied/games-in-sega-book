@@ -11,14 +11,16 @@
 
 #pragma once
 #include "Game.h"
-#include "Player.h"
-#include "Map.h"
 
 #include <memory>
 #include <string>
 
 namespace FirstGame
 {
+    class Player;
+    class Map;
+    enum class MoveDirections;
+
     class MoveBoxGame : public Game
     {
     public:

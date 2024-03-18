@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Map.h"
 
 FirstGame::Player::Player(int x, int y) : x_(x), y_(y)
 {

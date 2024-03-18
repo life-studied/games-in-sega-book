@@ -1,5 +1,7 @@
 #include "MoveBoxGame.h"
 #include "Input.hpp"
+#include "Player.h"
+#include "Map.h"
 
 #include <fstream>
 #include <iostream>

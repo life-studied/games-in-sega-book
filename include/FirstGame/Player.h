@@ -11,12 +11,12 @@
 
 #pragma once
 
-#include "Map.h"
-
 #include <tuple>
 
 namespace FirstGame
 {
+    class Map;
+
     /// @brief      Enum MoveDirections define the directions player can move.
     enum class MoveDirections
     {
